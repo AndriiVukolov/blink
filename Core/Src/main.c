@@ -30,11 +30,13 @@
 #include "usb_otg.h"
 #include "gpio.h"
 #include "loging.h"
+#include <stdio.h>
 
 
 
 UART_HandleTypeDef * huart;
-const unsigned char text[]={"Hello, world!\n\r"};
+//const unsigned char text[]={"Hello, world!\n\r"};
+unsigned char buffer[128] = {0};
 
 
 void SystemClock_Config(void);
@@ -60,25 +62,30 @@ int main(void)
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM2_Init();
-  HAL_TIM_Base_Start_IT(&htim2);
+  //HAL_TIM_Base_Start_IT(&htim2);
 
   //HAL_UART_MspInit(huart);
 
   while (1)
   {
+	  static int i;
+	  sprintf(buffer, "Hello world! %d \r\n", i);
+	  UartSendString(buffer, huart);
+	  i++;
+	  HAL_Delay(1000);
 
   }
 
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
-{
-	HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
-	HAL_GPIO_TogglePin(GPIOH, LED_GREEN_Pin);
-	//UartSendString(text, huart);
-	HAL_UART_Transmit(huart, text, sizeof text, 1000);
-
-}
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+//{
+//	HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
+//	HAL_GPIO_TogglePin(GPIOH, LED_GREEN_Pin);
+//	UartSendString(text, huart);
+//	HAL_UART_Transmit(huart, text, sizeof text, 1000);
+//
+//}
 
 
 void SystemClock_Config(void)

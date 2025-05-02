@@ -25,10 +25,13 @@ UART_HandleTypeDef * UartInit(int type)
 	return (uartHandle);
 }
 
-void UartSendString(const unsigned char * phrase, UART_HandleTypeDef* huart)
+void UartSendString(unsigned char * phrase, UART_HandleTypeDef* huart)
 {
+	int qty = 0;
 
-	if (HAL_UART_Transmit(huart, phrase, sizeof phrase, 0) != HAL_OK)
+	while (phrase[qty]) qty++;
+
+	if (HAL_UART_Transmit(huart, phrase, qty, 1000) != HAL_OK)
 	  {
 			Error_Handler();
 	  }
