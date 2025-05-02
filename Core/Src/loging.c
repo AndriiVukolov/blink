@@ -1,4 +1,6 @@
 #include "usart.h"
+#include "string.h"
+
 
 //UART_HandleTypeDef huart4;
 //UART_HandleTypeDef huart1;
@@ -25,12 +27,14 @@ UART_HandleTypeDef * UartInit(int type)
 	return (uartHandle);
 }
 
-void UartSendString(const unsigned char * phrase, UART_HandleTypeDef* huart)
-{
 
-	if (HAL_UART_Transmit(huart, phrase, sizeof phrase, 0) != HAL_OK)
+void UartSendString(unsigned char * phrase, UART_HandleTypeDef* huart)
+{
+	int qty = 0;
+
+	qty = strlen(phrase);
+	if (HAL_UART_Transmit(huart, phrase, qty, 1000) != HAL_OK)
 	  {
 			Error_Handler();
 	  }
-
 }
