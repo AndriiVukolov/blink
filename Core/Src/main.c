@@ -32,12 +32,14 @@
 #include "loging.h"
 #include <stdio.h>
 
+#define DEBOUNCE_DELAY 200 //ms
 
 
 UART_HandleTypeDef * huart;
 //const unsigned char text[]={"Hello, world!\n\r"};
 unsigned char buffer[128] = {0};
-
+unsigned int timer1ms = 0;
+GPIO_PinState flagButtonState;
 
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
@@ -68,24 +70,37 @@ int main(void)
 
   while (1)
   {
-	  static int i;
-	  sprintf(buffer, "Hello world! %d \r\n", i);
-	  UartSendString(buffer, huart);
-	  i++;
-	  HAL_Delay(1000);
+//	  static int i;
+//	  sprintf(buffer, "Hello world! %d \r\n", i);
+//	  UartSendString(buffer, huart);
+//	  i++;
+//	  HAL_Delay(1000);
+
+	  if (((flagButtonState = HAL_GPIO_ReadPin(USER_Button_GPIO_Port, USER_Button_Pin)) == GPIO_PIN_SET) && (timer1ms == DEBOUNCE_DELAY))
+	  {
+		  UartSendString(buffer, huart);
+		  timer1ms = 0;
+		  HAL_TIM_Base_Stop_IT(&htim2);
+	  }
+
 
   }
 
 }
-
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
-//{
+//Timer interrupt every 1 ms
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+{
 //	HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
 //	HAL_GPIO_TogglePin(GPIOH, LED_GREEN_Pin);
 //	UartSendString(text, huart);
 //	HAL_UART_Transmit(huart, text, sizeof text, 1000);
-//
-//}
+	if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
+}
+//Button interrupt
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == USER_Button_Pin) HAL_TIM_Base_Start_IT(&htim2);
+}
 
 
 void SystemClock_Config(void)

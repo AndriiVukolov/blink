@@ -92,9 +92,13 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : USER_Button_Pin */
   GPIO_InitStruct.Pin = USER_Button_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USER_Button_GPIO_Port, &GPIO_InitStruct);
+
+  /*EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
   /*Configure GPIO pins : PH4 PH5 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
