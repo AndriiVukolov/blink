@@ -96,10 +96,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USER_Button_GPIO_Port, &GPIO_InitStruct);
 
-  /*EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI13_IRQn, 1, 0);
-  HAL_NVIC_EnableIRQ(EXTI13_IRQn);
-
   /*Configure GPIO pins : PH4 PH5 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
@@ -162,6 +158,10 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF6_MDF1;
   HAL_GPIO_Init(MIC_SDIN0_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI13_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI13_IRQn);
 
 }
 

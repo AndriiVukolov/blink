@@ -27,8 +27,6 @@
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
 
-
-
 /* UART4 init function */
 void MX_UART4_Init(void)
 {
