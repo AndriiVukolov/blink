@@ -29,23 +29,81 @@
 #include "ucpd.h"
 #include "usb_otg.h"
 #include "gpio.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include "loging.h"
 #include <stdio.h>
+/* USER CODE END Includes */
 
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
 
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+#define DEBOUNCE_DELAY 50 //ms
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
 UART_HandleTypeDef * huart;
 unsigned char buffer[128] = {0};
+unsigned int timer1ms = 0;
+GPIO_PinState flagButtonState;
+GPIO_PinState isPressed;
+/* USER CODE END PV */
 
+/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
+/* USER CODE BEGIN PFP */
 
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the System Power */
   SystemPower_Config();
+
+  /* Configure the system clock */
   SystemClock_Config();
 
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADF1_Init();
   MX_I2C1_Init();
@@ -53,18 +111,17 @@ int main(void)
   MX_OCTOSPI1_Init();
   MX_OCTOSPI2_Init();
   MX_SPI2_Init();
-//  MX_UART4_Init();
-//  MX_USART1_UART_Init();
-  huart = UartInit(1);
+  MX_UART4_Init();
+  MX_USART1_UART_Init();
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM2_Init();
+  /* USER CODE BEGIN 2 */
+  huart = UartInit(1);
+  /* USER CODE END 2 */
 
-  //HAL_TIM_Base_Start_IT(&htim2);
-
-
-  //HAL_UART_MspInit(huart);
-
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   while (1)
   {
 	  static int i;
@@ -72,8 +129,23 @@ int main(void)
 	  UartSendString(buffer, huart);
 	  i++;
 	  HAL_Delay(1000);
-  }
+      flagButtonState = HAL_GPIO_ReadPin(USER_Button_GPIO_Port, USER_Button_Pin);
+      if ((flagButtonState == GPIO_PIN_SET) && (timer1ms == DEBOUNCE_DELAY))
+      {
+        static int i;
+        sprintf(buffer, "Hello world! %d \r\n", i);
+        UartSendString(buffer, huart);
+        timer1ms = 0;
+        HAL_TIM_Base_Stop_IT(&htim2);
+        HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
+        HAL_NVIC_EnableIRQ(USER_Button_EXTI_IRQn);
+        i++;
+      }
+    /* USER CODE END WHILE */
 
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
 }
 
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
@@ -85,6 +157,10 @@ int main(void)
 //
 //}
 
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -159,7 +235,21 @@ static void SystemPower_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+//Timer interrupt every 1 ms
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+{
+    if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
+}
+//Button interrupt
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+    if(GPIO_Pin == USER_Button_Pin)
+        {
+            HAL_NVIC_DisableIRQ(USER_Button_EXTI_IRQn);
+            HAL_TIM_Base_Start_IT(&htim2);
+        }
 
+}
 /* USER CODE END 4 */
 
 /**

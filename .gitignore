@@ -54,3 +54,5 @@ dkms.conf
 #Folders Debug and Release
 Debug/
 Release/
+.settings/
+**/Backup/

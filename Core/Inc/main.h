@@ -111,6 +111,7 @@ void Error_Handler(void);
 #define OCTOSPI_F_IO0_GPIO_Port GPIOF
 #define USER_Button_Pin GPIO_PIN_13
 #define USER_Button_GPIO_Port GPIOC
+#define USER_Button_EXTI_IRQn EXTI13_IRQn
 #define OCTOSPI_F_IO4_Pin GPIO_PIN_9
 #define OCTOSPI_F_IO4_GPIO_Port GPIOH
 #define LED_RED_Pin GPIO_PIN_6
