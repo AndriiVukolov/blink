@@ -97,8 +97,8 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(USER_Button_GPIO_Port, &GPIO_InitStruct);
 
   /*EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+  HAL_NVIC_SetPriority(EXTI13_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI13_IRQn);
 
   /*Configure GPIO pins : PH4 PH5 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;

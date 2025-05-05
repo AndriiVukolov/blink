@@ -32,7 +32,7 @@
 #include "loging.h"
 #include <stdio.h>
 
-#define DEBOUNCE_DELAY 200 //ms
+#define DEBOUNCE_DELAY 50 //ms
 
 
 UART_HandleTypeDef * huart;
@@ -40,6 +40,7 @@ UART_HandleTypeDef * huart;
 unsigned char buffer[128] = {0};
 unsigned int timer1ms = 0;
 GPIO_PinState flagButtonState;
+GPIO_PinState isPressed;
 
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
@@ -75,12 +76,17 @@ int main(void)
 //	  UartSendString(buffer, huart);
 //	  i++;
 //	  HAL_Delay(1000);
+	  flagButtonState = HAL_GPIO_ReadPin(USER_Button_GPIO_Port, USER_Button_Pin);
 
-	  if (((flagButtonState = HAL_GPIO_ReadPin(USER_Button_GPIO_Port, USER_Button_Pin)) == GPIO_PIN_SET) && (timer1ms == DEBOUNCE_DELAY))
+	  if ((flagButtonState == GPIO_PIN_SET) && (timer1ms == DEBOUNCE_DELAY))
 	  {
+		  static int i;
+		  sprintf(buffer, "Hello world! %d \r\n", i);
 		  UartSendString(buffer, huart);
 		  timer1ms = 0;
 		  HAL_TIM_Base_Stop_IT(&htim2);
+		  HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
+		  i++;
 	  }
 
 
