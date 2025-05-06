@@ -44,9 +44,9 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define DEBOUNCE_DELAY 50 //ms
-#define PULSE_STEP  20000UL
-#define PULSE_MAX  160000UL
-#define PULSE_MIN 0UL
+#define PULSE_STEP  21000L
+#define PULSE_MAX  160000L
+#define PULSE_MIN       0L
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,14 +61,13 @@
 //TIM_HandleTypeDef htim3;
 //TIM_OC_InitTypeDef sConfigOC;
 
-UART_HandleTypeDef * huart;
-TIM_OC_InitTypeDef sConfigOCPV = {0};
-unsigned char buffer[128] = {0};
-unsigned int timer1ms = 0;
-GPIO_PinState flagButtonState;
-GPIO_PinState isPressed;
-unsigned long pulseWidth = 0;
-int direction = 1;
+static UART_HandleTypeDef * huart;
+static TIM_OC_InitTypeDef sConfigOCPV = {0};
+static unsigned char buffer[128] = {0};
+static unsigned int timer1ms = 0;
+static GPIO_PinState flagButtonState;
+static volatile int32_t pulseWidth = 0;
+static int direction = 1;
 
 /* USER CODE END PV */
 
@@ -145,14 +144,24 @@ int main(void)
         HAL_TIM_Base_Stop_IT(&htim2);
         //HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
         HAL_NVIC_EnableIRQ(USER_Button_EXTI_IRQn);
+        pulseWidth += (int32_t)(PULSE_STEP * direction);
+        if (pulseWidth >= PULSE_MAX)
+            {
+                pulseWidth = PULSE_MAX;
+                direction = (-1);
+            }
+        if (pulseWidth <= PULSE_MIN)
+            {
+                pulseWidth = PULSE_MIN;
+                direction = 1;
+            }
 
-        if (pulseWidth == PULSE_MAX) direction = (-1);
-        if (pulseWidth == PULSE_MIN) direction = 1;
+//        if (direction > 0) pulseWidth += PULSE_STEP;
+//        else pulseWidth -= PULSE_STEP;
 
-        if (direction > 0) pulseWidth += PULSE_STEP;
-        else pulseWidth -= PULSE_STEP;
 
-        sprintf(buffer, "Current pulse width %lu %% \r\n", ((pulseWidth * 100) / PULSE_MAX));
+
+        sprintf(buffer, "Current pulse width %li %% \r\n", ((pulseWidth * 100) / PULSE_MAX));
         UartSendString(buffer, huart);
         timer1ms = 0;
 
