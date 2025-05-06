@@ -44,6 +44,9 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define DEBOUNCE_DELAY 50 //ms
+#define PULSE_STEP  21000L
+#define PULSE_MAX  160000L
+#define PULSE_MIN       0L
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -54,11 +57,18 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-UART_HandleTypeDef * huart;
-unsigned char buffer[128] = {0};
-unsigned int timer1ms = 0;
-GPIO_PinState flagButtonState;
-GPIO_PinState isPressed;
+//TIM_HandleTypeDef htim2;
+//TIM_HandleTypeDef htim3;
+//TIM_OC_InitTypeDef sConfigOC;
+
+static UART_HandleTypeDef * huart;
+static TIM_OC_InitTypeDef sConfigOCPV = {0};
+static unsigned char buffer[128] = {0};
+static unsigned int timer1ms = 0;
+static GPIO_PinState flagButtonState;
+static volatile int32_t pulseWidth = 0;
+static int direction = 1;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -116,30 +126,53 @@ int main(void)
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   huart = UartInit(1);
+  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+  HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  static int i;
-	  sprintf(buffer, "Hello world! %d \r\n", i);
-	  UartSendString(buffer, huart);
-	  i++;
-	  HAL_Delay(1000);
       flagButtonState = HAL_GPIO_ReadPin(USER_Button_GPIO_Port, USER_Button_Pin);
       if ((flagButtonState == GPIO_PIN_SET) && (timer1ms == DEBOUNCE_DELAY))
       {
-        static int i;
-        sprintf(buffer, "Hello world! %d \r\n", i);
+        HAL_TIM_Base_Stop_IT(&htim2);
+        //HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
+        HAL_NVIC_EnableIRQ(USER_Button_EXTI_IRQn);
+        pulseWidth += (int32_t)(PULSE_STEP * direction);
+        if (pulseWidth >= PULSE_MAX)
+            {
+                pulseWidth = PULSE_MAX;
+                direction = (-1);
+            }
+        if (pulseWidth <= PULSE_MIN)
+            {
+                pulseWidth = PULSE_MIN;
+                direction = 1;
+            }
+
+//        if (direction > 0) pulseWidth += PULSE_STEP;
+//        else pulseWidth -= PULSE_STEP;
+
+
+
+        sprintf(buffer, "Current pulse width %li %% \r\n", ((pulseWidth * 100) / PULSE_MAX));
         UartSendString(buffer, huart);
         timer1ms = 0;
-        HAL_TIM_Base_Stop_IT(&htim2);
-        HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
-        HAL_NVIC_EnableIRQ(USER_Button_EXTI_IRQn);
-        i++;
+
+        sConfigOCPV.OCMode = TIM_OCMODE_PWM1;
+        sConfigOCPV.Pulse = pulseWidth;
+        sConfigOCPV.OCPolarity = TIM_OCPOLARITY_HIGH;
+        sConfigOCPV.OCFastMode = TIM_OCFAST_DISABLE;
+        if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOCPV, TIM_CHANNEL_1) != HAL_OK)
+        {
+          Error_Handler();
+        }
       }
     /* USER CODE END WHILE */
 
@@ -147,15 +180,6 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
-
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
-//{
-//	HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
-//	HAL_GPIO_TogglePin(GPIOH, LED_GREEN_Pin);
-//	UartSendString(text, huart);
-//	HAL_UART_Transmit(huart, text, sizeof text, 1000);
-//
-//}
 
 /**
   * @brief System Clock Configuration
@@ -238,7 +262,22 @@ static void SystemPower_Config(void)
 //Timer interrupt every 1 ms
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
-    if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
+    if(htim->Instance == TIM2)
+    {
+        if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
+    }
+    if(htim->Instance == TIM3)
+    {
+        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+    }
+}
+//
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+    if(htim->Instance == TIM3)
+    {
+        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+    }
 }
 //Button interrupt
 void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
@@ -248,7 +287,6 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
             HAL_NVIC_DisableIRQ(USER_Button_EXTI_IRQn);
             HAL_TIM_Base_Start_IT(&htim2);
         }
-
 }
 /* USER CODE END 4 */
 
