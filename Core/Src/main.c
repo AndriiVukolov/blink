@@ -33,7 +33,11 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "loging.h"
+#include "microrl.h"
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "stm32u5xx_hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +51,8 @@
 #define PULSE_STEP  21000L
 #define PULSE_MAX  160000L
 #define PULSE_MIN       0L
+
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,15 +65,15 @@
 /* USER CODE BEGIN PV */
 //TIM_HandleTypeDef htim2;
 //TIM_HandleTypeDef htim3;
-//TIM_OC_InitTypeDef sConfigOC;
-
+static TIM_OC_InitTypeDef sConfigOC;
 static UART_HandleTypeDef * huart;
-static TIM_OC_InitTypeDef sConfigOCPV = {0};
-static unsigned char buffer[128] = {0};
-static unsigned int timer1ms = 0;
-static GPIO_PinState flagButtonState;
-static volatile int32_t pulseWidth = 0;
-static int direction = 1;
+//static unsigned int timer1ms = 0;
+//static GPIO_PinState flagButtonState;
+static int32_t pulseWidth = 0;
+//static int direction = 1;
+static uint32_t brightness;
+
+static microrl_t mcon;
 
 /* USER CODE END PV */
 
@@ -75,6 +81,11 @@ static int direction = 1;
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
+void print (const char * str);
+int execute (int argc, const char * const * argv);
+void print_help (void);
+uint8_t get_char (void);
+void sigint (void);
 
 /* USER CODE END PFP */
 
@@ -125,12 +136,17 @@ int main(void)
   MX_USART1_UART_Init();
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
-  MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   huart = UartInit(1);
+//========================================================================Microrl=============================
+  microrl_init(&mcon, print);
+  microrl_set_execute_callback (&mcon, execute);
+  microrl_set_sigint_callback (&mcon, sigint);
+//==========================================================================================================
   HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+  TIM3_PeriodSet(80000);
   HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
@@ -138,42 +154,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      flagButtonState = HAL_GPIO_ReadPin(USER_Button_GPIO_Port, USER_Button_Pin);
-      if ((flagButtonState == GPIO_PIN_SET) && (timer1ms == DEBOUNCE_DELAY))
-      {
-        HAL_TIM_Base_Stop_IT(&htim2);
-        //HAL_GPIO_TogglePin(GPIOH, LED_RED_Pin);
-        HAL_NVIC_EnableIRQ(USER_Button_EXTI_IRQn);
-        pulseWidth += (int32_t)(PULSE_STEP * direction);
-        if (pulseWidth >= PULSE_MAX)
-            {
-                pulseWidth = PULSE_MAX;
-                direction = (-1);
-            }
-        if (pulseWidth <= PULSE_MIN)
-            {
-                pulseWidth = PULSE_MIN;
-                direction = 1;
-            }
 
-//        if (direction > 0) pulseWidth += PULSE_STEP;
-//        else pulseWidth -= PULSE_STEP;
-
-
-
-        sprintf(buffer, "Current pulse width %li %% \r\n", ((pulseWidth * 100) / PULSE_MAX));
-        UartSendString(buffer, huart);
-        timer1ms = 0;
-
-        sConfigOCPV.OCMode = TIM_OCMODE_PWM1;
-        sConfigOCPV.Pulse = pulseWidth;
-        sConfigOCPV.OCPolarity = TIM_OCPOLARITY_HIGH;
-        sConfigOCPV.OCFastMode = TIM_OCFAST_DISABLE;
-        if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOCPV, TIM_CHANNEL_1) != HAL_OK)
-        {
-          Error_Handler();
-        }
-      }
+      uint8_t cChar;
+      cChar = get_char();
+      //UartSendString(&cChar, huart);
+      microrl_insert_char (&mcon, cChar);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -262,32 +247,146 @@ static void SystemPower_Config(void)
 //Timer interrupt every 1 ms
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
-    if(htim->Instance == TIM2)
-    {
-        if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
-    }
+//    if(htim->Instance == TIM2)
+//    {
+//        if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
+//    }
+//    if(htim->Instance == TIM3)
+//    {
+//        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+//    }
+}
+
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
+{
     if(htim->Instance == TIM3)
-    {
-        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
-    }
+        {
+            HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_RESET);
+        }
 }
 //
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM3)
     {
-        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_SET);
     }
 }
 //Button interrupt
-void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+//void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+//{
+//    if(GPIO_Pin == USER_Button_Pin)
+//        {
+//            HAL_NVIC_DisableIRQ(USER_Button_EXTI_IRQn);
+//            HAL_TIM_Base_Start_IT(&htim2);
+//        }
+//}
+
+//==========================================================================================================
+void print (const char * str)
 {
-    if(GPIO_Pin == USER_Button_Pin)
-        {
-            HAL_NVIC_DisableIRQ(USER_Button_EXTI_IRQn);
-            HAL_TIM_Base_Start_IT(&htim2);
-        }
+//  unsigned char buffer[128] = {0};
+//  sprintf(buffer, "%s", str);
+//UartSendString(buffer, huart);
+    if (HAL_UART_Transmit(huart, str, strlen(str), 100) != HAL_OK)
+    {
+        Error_Handler();
+    }
 }
+int execute (int argc, const char * const * argv)
+{
+    int i = 0;
+    static uint8_t buffer[5] = {0};
+    // just iterate through argv word and compare it with your commands
+    while (i < argc) {
+        if (strcmp (argv[i], _CMD_HELP) == 0)
+        {
+            print ("microrl v");
+            print (MICRORL_LIB_VER);
+            print("\n\r");
+            print_help ();        // print help
+        }
+        else if (strcmp (argv[i], _CMD_CLEAR) == 0)
+        {
+            print ("\033[2J");    // ESC seq for clear entire screen
+            print ("\033[H");     // ESC seq for move cursor at left-top corner
+        }
+        else if (strcmp (argv[i], _CMD_LED_ON) == 0)
+        {
+            HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+            print("led turning on \n\r");
+        }
+        else if (strcmp (argv[i], _CMD_LED_OFF) == 0)
+        {
+            HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+            print("led turning off \n\r");
+        }
+        else if (strcmp (argv[i], _CMD_SET_BRIGHTNESS) == 0)
+        {
+            if ((++i) < argc) // if value present
+            {
+                if (strlen (argv[i]) <= 4)
+                {
+                    strcpy(buffer,argv[i]);
+                    brightness = atoi(buffer);
+                    pulseWidth = (htim3.Init.Period * brightness / 100);
+//                    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+//                    sConfigOC.Pulse = (htim3.Init.Period * brightness / 100);
+//                    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+//                    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+//                    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+//                    {
+//                      Error_Handler();
+//                    }
+                    TIM3_PeriodSet(pulseWidth);
+                }
+                else
+                {
+                    print ("value too long!\n\r");
+                }
+            }
+            else
+            {
+                print ("Enter the value \n\r");
+            }
+            print("brightness is ");
+            sprintf(buffer, "%lu", brightness);
+            print(buffer);
+            print("% \n\r");
+        }
+        else
+        {
+            print ("command: '");
+            print ((char*)argv[i]);
+            print ("' Not found.\n\r");
+        }
+        i++;
+    }
+    return 0;
+}
+void print_help (void)
+{
+    print ("Use TAB key for completion\n\rCommand:\n\r");
+    print ("\tclear               - clear screen\n\r");
+    print ("\tledon               - turns LED on\n\r");
+    print ("\tledoff              - turns LED off\n\r");
+    print ("\tled_set <brightness> - sets LED brightness 0..100\n\r");
+}
+uint8_t get_char (void)
+{
+    uint8_t symb;
+    if (HAL_UART_Receive(huart, &symb, 1, 0) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    return (symb);
+}
+void sigint (void)
+{
+    print ("^C catched!\n\r");
+}
+
+//==========================================================================================================
 /* USER CODE END 4 */
 
 /**
