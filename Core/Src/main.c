@@ -38,6 +38,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "stm32u5xx_hal.h"
+#include "cli_commands.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,12 +67,12 @@
 //TIM_HandleTypeDef htim2;
 //TIM_HandleTypeDef htim3;
 static TIM_OC_InitTypeDef sConfigOC;
-static UART_HandleTypeDef * huart;
+UART_HandleTypeDef * huart;
 //static unsigned int timer1ms = 0;
 //static GPIO_PinState flagButtonState;
-static int32_t pulseWidth = 0;
+//static int32_t pulseWidth = 0;
 //static int direction = 1;
-static uint32_t brightness;
+//static uint32_t brightness;
 
 static microrl_t mcon;
 
@@ -81,10 +82,10 @@ static microrl_t mcon;
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
-void print (const char * str);
+//void print (const char * str);
 int execute (int argc, const char * const * argv);
 void print_help (void);
-uint8_t get_char (void);
+//uint8_t get_char (void);
 void sigint (void);
 
 /* USER CODE END PFP */
@@ -285,9 +286,6 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 //==========================================================================================================
 void print (const char * str)
 {
-//  unsigned char buffer[128] = {0};
-//  sprintf(buffer, "%s", str);
-//UartSendString(buffer, huart);
     if (HAL_UART_Transmit(huart, str, strlen(str), 100) != HAL_OK)
     {
         Error_Handler();
@@ -296,63 +294,28 @@ void print (const char * str)
 int execute (int argc, const char * const * argv)
 {
     int i = 0;
-    static uint8_t buffer[5] = {0};
+
     // just iterate through argv word and compare it with your commands
     while (i < argc) {
         if (strcmp (argv[i], _CMD_HELP) == 0)
         {
-            print ("microrl v");
-            print (MICRORL_LIB_VER);
-            print("\n\r");
-            print_help ();        // print help
+            cmdHelp();
         }
         else if (strcmp (argv[i], _CMD_CLEAR) == 0)
         {
-            print ("\033[2J");    // ESC seq for clear entire screen
-            print ("\033[H");     // ESC seq for move cursor at left-top corner
+            cmdClear();
         }
         else if (strcmp (argv[i], _CMD_LED_ON) == 0)
         {
-            HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
-            print("led turning on \n\r");
+            cmdLedon();
         }
         else if (strcmp (argv[i], _CMD_LED_OFF) == 0)
         {
-            HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
-            print("led turning off \n\r");
+            cmdLedoff();
         }
         else if (strcmp (argv[i], _CMD_SET_BRIGHTNESS) == 0)
         {
-            if ((++i) < argc) // if value present
-            {
-                if (strlen (argv[i]) <= 4)
-                {
-                    strcpy(buffer,argv[i]);
-                    brightness = atoi(buffer);
-                    pulseWidth = (htim3.Init.Period * brightness / 100);
-//                    sConfigOC.OCMode = TIM_OCMODE_PWM1;
-//                    sConfigOC.Pulse = (htim3.Init.Period * brightness / 100);
-//                    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-//                    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-//                    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-//                    {
-//                      Error_Handler();
-//                    }
-                    TIM3_PeriodSet(pulseWidth);
-                }
-                else
-                {
-                    print ("value too long!\n\r");
-                }
-            }
-            else
-            {
-                print ("Enter the value \n\r");
-            }
-            print("brightness is ");
-            sprintf(buffer, "%lu", brightness);
-            print(buffer);
-            print("% \n\r");
+            cmdSetBrightness(argv[++i]);
         }
         else
         {
@@ -372,7 +335,7 @@ void print_help (void)
     print ("\tledoff              - turns LED off\n\r");
     print ("\tled_set <brightness> - sets LED brightness 0..100\n\r");
 }
-uint8_t get_char (void)
+unsigned char get_char (void)
 {
     uint8_t symb;
     if (HAL_UART_Receive(huart, &symb, 1, 0) != HAL_OK)

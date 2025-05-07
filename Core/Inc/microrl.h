@@ -44,16 +44,6 @@
 
 #define IS_CONTROL_CHAR(x) ((x)<=31)
 
-// definition commands word
-#define _CMD_HELP   "help"
-#define _CMD_CLEAR  "clear"
-#define _CMD_LED_ON "ledon"
-#define _CMD_LED_OFF "ledoff"
-#define _CMD_SET_BRIGHTNESS "led_set"
-
-//available  commands
-//char * keyword [] = {_CMD_HELP, _CMD_CLEAR, _CMD_LED_ON, _CMD_LED_OFF, _CMD_SET_BRIGHTNESS};
-
 // direction of history navigation
 #define _HIST_UP   0
 #define _HIST_DOWN 1
@@ -123,5 +113,8 @@ void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void));
 
 // insert char to cmdline (for example call in usart RX interrupt)
 void microrl_insert_char (microrl_t * pThis, int ch);
+
+void print (const char * str);
+unsigned char get_char (void);
 
 #endif
