@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "mdf.h"
 #include "i2c.h"
 #include "icache.h"
@@ -66,7 +67,7 @@
 /* USER CODE BEGIN PV */
 //TIM_HandleTypeDef htim2;
 //TIM_HandleTypeDef htim3;
-static TIM_OC_InitTypeDef sConfigOC;
+//static TIM_OC_InitTypeDef sConfigOC;
 UART_HandleTypeDef * huart;
 //static unsigned int timer1ms = 0;
 //static GPIO_PinState flagButtonState;
@@ -84,7 +85,6 @@ static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
 //void print (const char * str);
 int execute (int argc, const char * const * argv);
-void print_help (void);
 //uint8_t get_char (void);
 void sigint (void);
 
@@ -133,11 +133,11 @@ int main(void)
   MX_OCTOSPI1_Init();
   MX_OCTOSPI2_Init();
   MX_SPI2_Init();
-  MX_UART4_Init();
-  MX_USART1_UART_Init();
+
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM3_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   huart = UartInit(1);
 //========================================================================Microrl=============================
@@ -149,6 +149,10 @@ int main(void)
   HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
   TIM3_PeriodSet(80000);
   HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_1);
+
+  //HAL_ADCEx_Calibration_Start(&hadc1,ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
+  HAL_ADC_Start(&hadc1);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -163,6 +167,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
@@ -262,7 +267,7 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM3)
         {
-            HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
         }
 }
 //
@@ -270,7 +275,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM3)
     {
-        HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
     }
 }
 //Button interrupt
@@ -296,7 +301,8 @@ int execute (int argc, const char * const * argv)
     int i = 0;
 
     // just iterate through argv word and compare it with your commands
-    while (i < argc) {
+    while (i < argc)
+    {
         if (strcmp (argv[i], _CMD_HELP) == 0)
         {
             cmdHelp();
@@ -317,6 +323,15 @@ int execute (int argc, const char * const * argv)
         {
             cmdSetBrightness(argv[++i]);
         }
+        else if (strcmp (argv[i], _CMD_ADCGET) == 0)
+        {
+            if ((++i) < argc) cmdADCGet(argv[i]);
+            else cmdADCGet("-1");
+        }
+        else if (strcmp(argv[i], _CMD_ADCSTATUS) == 0)
+        {
+            cmdADCGetStatus();
+        }
         else
         {
             print ("command: '");
@@ -327,14 +342,7 @@ int execute (int argc, const char * const * argv)
     }
     return 0;
 }
-void print_help (void)
-{
-    print ("Use TAB key for completion\n\rCommand:\n\r");
-    print ("\tclear               - clear screen\n\r");
-    print ("\tledon               - turns LED on\n\r");
-    print ("\tledoff              - turns LED off\n\r");
-    print ("\tled_set <brightness> - sets LED brightness 0..100\n\r");
-}
+
 unsigned char get_char (void)
 {
     uint8_t symb;

@@ -156,6 +156,8 @@ void Error_Handler(void);
 #define WRLS_WKUP_B_GPIO_Port GPIOG
 #define Mems_VL53_xshut_Pin GPIO_PIN_1
 #define Mems_VL53_xshut_GPIO_Port GPIOH
+#define AN_0_Pin GPIO_PIN_0
+#define AN_0_GPIO_Port GPIOC
 #define MIC_CCK0_Pin GPIO_PIN_9
 #define MIC_CCK0_GPIO_Port GPIOE
 #define Mems_VLX_GPIO_Pin GPIO_PIN_5
@@ -192,9 +194,6 @@ void Error_Handler(void);
 #define MIC_SDIN0_GPIO_Port GPIOB
 #define WRLS_WKUP_W_Pin GPIO_PIN_15
 #define WRLS_WKUP_W_GPIO_Port GPIOF
-
-#define ILED_Pin GPIO_PIN_4
-#define ILED_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 typedef enum {ECHO_OFF, ECHO_ON}echoState_t;

@@ -684,10 +684,13 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			//-----------------------------------------------------
 			default:
 			if (((ch == ' ') && (pThis->cmdlen == 0)) || IS_CONTROL_CHAR(ch))
+			{
 				break;
+			}
 			if (microrl_insert_text (pThis, (char*)&ch, 1))
+			{
 				terminal_print_line (pThis, pThis->cursor-1, pThis->cursor);
-			
+			}
 			break;
 		}
 #ifdef _USE_ESC_SEQ

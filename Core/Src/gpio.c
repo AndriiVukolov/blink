@@ -159,13 +159,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF6_MDF1;
   HAL_GPIO_Init(MIC_SDIN0_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LED_RED_Pin LED_GREEN_Pin Mems_VL53_xshut_Pin */
-    GPIO_InitStruct.Pin = ILED_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(ILED_Port, &GPIO_InitStruct);
-
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI13_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI13_IRQn);
