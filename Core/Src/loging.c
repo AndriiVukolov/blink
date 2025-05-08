@@ -9,7 +9,6 @@ UART_HandleTypeDef * UartInit(int type)
 {
 	UART_HandleTypeDef* uartHandle;
 
-
 	if (type == 4)
 	{
 		uartHandle = &huart4;
@@ -20,10 +19,6 @@ UART_HandleTypeDef * UartInit(int type)
 		uartHandle = &huart1;
 		MX_USART1_UART_Init();
 	}
-
-
-
-
 	return (uartHandle);
 }
 

@@ -193,8 +193,11 @@ void Error_Handler(void);
 #define WRLS_WKUP_W_Pin GPIO_PIN_15
 #define WRLS_WKUP_W_GPIO_Port GPIOF
 
-/* USER CODE BEGIN Private defines */
+#define ILED_Pin GPIO_PIN_4
+#define ILED_Port GPIOB
 
+/* USER CODE BEGIN Private defines */
+typedef enum {ECHO_OFF, ECHO_ON}echoState_t;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
