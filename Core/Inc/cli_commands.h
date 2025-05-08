@@ -21,8 +21,7 @@ void cmdHelp (void);
 void cmdClear(void);
 void cmdLedon(void);
 void cmdLedoff(void);
-void cmdSetBrightness(char * val);
-
-
+void cmdSetBrightness(const char * val);
+void print_help (void);
 
 #endif /* INC_CLI_COMMANDS_H_ */

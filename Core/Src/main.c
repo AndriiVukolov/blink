@@ -66,7 +66,7 @@
 /* USER CODE BEGIN PV */
 //TIM_HandleTypeDef htim2;
 //TIM_HandleTypeDef htim3;
-static TIM_OC_InitTypeDef sConfigOC;
+//static TIM_OC_InitTypeDef sConfigOC;
 UART_HandleTypeDef * huart;
 //static unsigned int timer1ms = 0;
 //static GPIO_PinState flagButtonState;
@@ -84,7 +84,7 @@ static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
 //void print (const char * str);
 int execute (int argc, const char * const * argv);
-void print_help (void);
+//void print_help (void);
 //uint8_t get_char (void);
 void sigint (void);
 
@@ -327,14 +327,14 @@ int execute (int argc, const char * const * argv)
     }
     return 0;
 }
-void print_help (void)
-{
-    print ("Use TAB key for completion\n\rCommand:\n\r");
-    print ("\tclear               - clear screen\n\r");
-    print ("\tledon               - turns LED on\n\r");
-    print ("\tledoff              - turns LED off\n\r");
-    print ("\tled_set <brightness> - sets LED brightness 0..100\n\r");
-}
+//void print_help (void)
+//{
+//    print ("Use TAB key for completion\n\rCommand:\n\r");
+//    print ("\tclear               - clear screen\n\r");
+//    print ("\tledon               - turns LED on\n\r");
+//    print ("\tledoff              - turns LED off\n\r");
+//    print ("\tled_set <brightness> - sets LED brightness 0..100\n\r");
+//}
 unsigned char get_char (void)
 {
     uint8_t symb;
