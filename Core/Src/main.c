@@ -299,7 +299,7 @@ void print (const char * str)
 int execute (int argc, const char * const * argv)
 {
     int i = 0;
-
+    print ("\n");
     // just iterate through argv word and compare it with your commands
     while (i < argc)
     {
@@ -341,6 +341,7 @@ int execute (int argc, const char * const * argv)
         }
         i++;
     }
+
     return 0;
 }
 
@@ -351,7 +352,6 @@ unsigned char get_char (void)
     {
         Error_Handler();
     }
-    if (symb == 13) print ("\n");
     return (symb);
 }
 void sigint (void)
