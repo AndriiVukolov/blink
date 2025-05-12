@@ -133,7 +133,6 @@ int main(void)
   MX_OCTOSPI1_Init();
   MX_OCTOSPI2_Init();
   MX_SPI2_Init();
-
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM3_Init();
@@ -159,7 +158,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
       uint8_t cChar;
       cChar = get_char();
       //UartSendString(&cChar, huart);
@@ -167,7 +165,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
   }
   /* USER CODE END 3 */
 }
@@ -253,14 +250,6 @@ static void SystemPower_Config(void)
 //Timer interrupt every 1 ms
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
-//    if(htim->Instance == TIM2)
-//    {
-//        if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
-//    }
-//    if(htim->Instance == TIM3)
-//    {
-//        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
-//    }
 }
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
@@ -278,15 +267,6 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
         HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
     }
 }
-//Button interrupt
-//void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
-//{
-//    if(GPIO_Pin == USER_Button_Pin)
-//        {
-//            HAL_NVIC_DisableIRQ(USER_Button_EXTI_IRQn);
-//            HAL_TIM_Base_Start_IT(&htim2);
-//        }
-//}
 
 //==========================================================================================================
 void print (const char * str)
@@ -341,10 +321,8 @@ int execute (int argc, const char * const * argv)
         }
         i++;
     }
-
     return 0;
 }
-
 unsigned char get_char (void)
 {
     uint8_t symb;
