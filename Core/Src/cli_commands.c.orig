@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "usart.h"
+<<<<<<< HEAD
 #include "adc.h"
 #include "cli_commands.h"
 
@@ -26,6 +27,14 @@ void print_help (void)
 void cmdHelp (void)
 {
     print ("microrl v");
+=======
+#include "cli_commands.h"
+
+
+void cmdHelp (void)
+{
+    print ("\rmicrorl v");
+>>>>>>> main
     print (MICRORL_LIB_VER);
     print("\n\r");
     print_help ();        // print help
@@ -39,23 +48,39 @@ void cmdClear(void)
 void cmdLedon(void)
 {
     HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+<<<<<<< HEAD
     print("led turning on \n\r");
+=======
+    print("\rled turning on \n\r");
+>>>>>>> main
 }
 void cmdLedoff(void)
 {
     HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+<<<<<<< HEAD
     print("led turning off \n\r");
 }
 void cmdSetBrightness(char * val)
 {
     static char buffer[20] = {0};
+=======
+    print("\rled turning off \n\r");
+}
+void cmdSetBrightness(const char * val)
+{
+    static char buffer[5] = {0};
+>>>>>>> main
     static uint32_t pulseWidth = 0;
     static uint32_t brightness = 0;
     static char * cptr = NULL;
     static uint8_t len;
     len = strlen(val);
 
+<<<<<<< HEAD
     if ((len <= 4) && (len > 1))
+=======
+    if ((len <= 4) && (len >0))
+>>>>>>> main
     {
         brightness = strtoul(val, &cptr, 10);
         pulseWidth = (htim3.Init.Period * brightness / 100);
@@ -63,6 +88,7 @@ void cmdSetBrightness(char * val)
     }
     else if (len > 4)
     {
+<<<<<<< HEAD
         print ("value too long!\n\r");
     }
     else
@@ -112,4 +138,24 @@ void cmdADCGetStatus(void)
     sprintf(buffer, "Status %lu \r\n", adcVal);
     adcVal = HAL_ADC_GetState(&hadc1);
     print(buffer);
+=======
+        print ("\rvalue too long!\n\r");
+    }
+    else if (len == 0)
+    {
+        print ("\rEnter the value \n\r");
+    }
+    print("\rbrightness is ");
+    sprintf(buffer, "%lu", brightness);
+    print(buffer);
+    print("% \n\r");
+}
+void print_help (void)
+{
+    print ("Use TAB key for completion.\n\rCommands:\n\r");
+    print ("clear               - clear screen\n\r");
+    print ("ledon               - turns LED on\n\r");
+    print ("ledoff              - turns LED off\n\r");
+    print ("led_set <brightness> - sets LED brightness 0..100\n\r");
+>>>>>>> main
 }

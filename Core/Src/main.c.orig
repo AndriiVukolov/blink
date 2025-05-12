@@ -68,7 +68,11 @@
 //TIM_HandleTypeDef htim2;
 //TIM_HandleTypeDef htim3;
 //static TIM_OC_InitTypeDef sConfigOC;
+<<<<<<< HEAD
 UART_HandleTypeDef huart;
+=======
+UART_HandleTypeDef * huart;
+>>>>>>> main
 //static unsigned int timer1ms = 0;
 //static GPIO_PinState flagButtonState;
 //static int32_t pulseWidth = 0;
@@ -85,6 +89,10 @@ static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
 //void print (const char * str);
 int execute (int argc, const char * const * argv);
+<<<<<<< HEAD
+=======
+//void print_help (void);
+>>>>>>> main
 //uint8_t get_char (void);
 void sigint (void);
 
@@ -133,6 +141,7 @@ int main(void)
   MX_OCTOSPI1_Init();
   MX_OCTOSPI2_Init();
   MX_SPI2_Init();
+
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM3_Init();
@@ -158,6 +167,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
       uint8_t cChar;
       cChar = get_char();
       //UartSendString(&cChar, huart);
@@ -165,6 +175,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
@@ -250,13 +261,25 @@ static void SystemPower_Config(void)
 //Timer interrupt every 1 ms
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
+//    if(htim->Instance == TIM2)
+//    {
+//        if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
+//    }
+//    if(htim->Instance == TIM3)
+//    {
+//        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+//    }
 }
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM3)
         {
+<<<<<<< HEAD
             HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
+=======
+            HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_RESET);
+>>>>>>> main
         }
 }
 //
@@ -264,14 +287,31 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM3)
     {
+<<<<<<< HEAD
         HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
+=======
+        HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_SET);
+>>>>>>> main
     }
 }
+//Button interrupt
+//void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+//{
+//    if(GPIO_Pin == USER_Button_Pin)
+//        {
+//            HAL_NVIC_DisableIRQ(USER_Button_EXTI_IRQn);
+//            HAL_TIM_Base_Start_IT(&htim2);
+//        }
+//}
 
 //==========================================================================================================
 void print (const char * str)
 {
+<<<<<<< HEAD
     if (HAL_UART_Transmit(&huart, str, strlen(str), 10) != HAL_OK)
+=======
+    if (HAL_UART_Transmit(huart, str, strlen(str), 100) != HAL_OK)
+>>>>>>> main
     {
         Error_Handler();
     }
@@ -279,10 +319,16 @@ void print (const char * str)
 int execute (int argc, const char * const * argv)
 {
     int i = 0;
+<<<<<<< HEAD
     print ("\n");
     // just iterate through argv word and compare it with your commands
     while (i < argc)
     {
+=======
+
+    // just iterate through argv word and compare it with your commands
+    while (i < argc) {
+>>>>>>> main
         if (strcmp (argv[i], _CMD_HELP) == 0)
         {
             cmdHelp();
@@ -301,6 +347,7 @@ int execute (int argc, const char * const * argv)
         }
         else if (strcmp (argv[i], _CMD_SET_BRIGHTNESS) == 0)
         {
+<<<<<<< HEAD
             if ((++i) < argc) cmdSetBrightness(argv[i]);
             else cmdSetBrightness("0");
         }
@@ -312,6 +359,9 @@ int execute (int argc, const char * const * argv)
         else if (strcmp(argv[i], _CMD_ADCSTATUS) == 0)
         {
             cmdADCGetStatus();
+=======
+            cmdSetBrightness(argv[++i]);
+>>>>>>> main
         }
         else
         {
@@ -321,12 +371,31 @@ int execute (int argc, const char * const * argv)
         }
         i++;
     }
+<<<<<<< HEAD
+
     return 0;
 }
+
 unsigned char get_char (void)
 {
     uint8_t symb;
     if (HAL_UART_Receive(&huart, &symb, 1, 10) != HAL_OK)
+=======
+    return 0;
+}
+//void print_help (void)
+//{
+//    print ("Use TAB key for completion\n\rCommand:\n\r");
+//    print ("\tclear               - clear screen\n\r");
+//    print ("\tledon               - turns LED on\n\r");
+//    print ("\tledoff              - turns LED off\n\r");
+//    print ("\tled_set <brightness> - sets LED brightness 0..100\n\r");
+//}
+unsigned char get_char (void)
+{
+    uint8_t symb;
+    if (HAL_UART_Receive(huart, &symb, 1, 0) != HAL_OK)
+>>>>>>> main
     {
         Error_Handler();
     }

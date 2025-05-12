@@ -595,6 +595,10 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			break;
 #else
 			case KEY_CR:
+<<<<<<< HEAD
+=======
+			    new_line_handler(pThis);
+>>>>>>> main
 			break;
 			case KEY_LF:
 				new_line_handler(pThis);
@@ -683,6 +687,7 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			//-----------------------------------------------------
 			default:
 			if (((ch == ' ') && (pThis->cmdlen == 0)) || IS_CONTROL_CHAR(ch))
+<<<<<<< HEAD
 			{
 				break;
 			}
@@ -690,6 +695,12 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			{
 				terminal_print_line (pThis, pThis->cursor-1, pThis->cursor);
 			}
+=======
+				break;
+			if (microrl_insert_text (pThis, (char*)&ch, 1))
+				terminal_print_line (pThis, pThis->cursor-1, pThis->cursor);
+			
+>>>>>>> main
 			break;
 		}
 #ifdef _USE_ESC_SEQ

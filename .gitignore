@@ -54,5 +54,6 @@ dkms.conf
 #Folders Debug and Release
 Debug/
 Release/
+Drivers/STM32U5xx_HAL_Driver/
 .settings/
 **/Backup/
