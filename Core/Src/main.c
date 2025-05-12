@@ -68,7 +68,7 @@
 //TIM_HandleTypeDef htim2;
 //TIM_HandleTypeDef htim3;
 //static TIM_OC_InitTypeDef sConfigOC;
-UART_HandleTypeDef * huart;
+UART_HandleTypeDef huart;
 //static unsigned int timer1ms = 0;
 //static GPIO_PinState flagButtonState;
 //static int32_t pulseWidth = 0;
@@ -291,7 +291,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 //==========================================================================================================
 void print (const char * str)
 {
-    if (HAL_UART_Transmit(huart, str, strlen(str), 100) != HAL_OK)
+    if (HAL_UART_Transmit(&huart, str, strlen(str), 10) != HAL_OK)
     {
         Error_Handler();
     }
@@ -321,7 +321,8 @@ int execute (int argc, const char * const * argv)
         }
         else if (strcmp (argv[i], _CMD_SET_BRIGHTNESS) == 0)
         {
-            cmdSetBrightness(argv[++i]);
+            if ((++i) < argc) cmdSetBrightness(argv[i]);
+            else cmdSetBrightness("0");
         }
         else if (strcmp (argv[i], _CMD_ADCGET) == 0)
         {
@@ -346,7 +347,7 @@ int execute (int argc, const char * const * argv)
 unsigned char get_char (void)
 {
     uint8_t symb;
-    if (HAL_UART_Receive(huart, &symb, 1, 0) != HAL_OK)
+    if (HAL_UART_Receive(&huart, &symb, 1, 10) != HAL_OK)
     {
         Error_Handler();
     }

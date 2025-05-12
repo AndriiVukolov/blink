@@ -17,6 +17,7 @@
 #define _CMD_ADCGET "adc_get"
 #define _CMD_ADCSTATUS "adc_status"
 
+//keys
 #define _ARG_ADCCYCLIC "-c"
 
 //available  commands
@@ -29,6 +30,7 @@ void cmdSetBrightness(char * val);
 void cmdADCGet();
 void print_help (void);
 void cmdADCGet(char * val);
+void cmdADCGetStatus(void);
 
 
 #endif /* INC_CLI_COMMANDS_H_ */

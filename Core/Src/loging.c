@@ -5,9 +5,9 @@
 //UART_HandleTypeDef huart4;
 //UART_HandleTypeDef huart1;
 
-UART_HandleTypeDef * UartInit(int type)
+UART_HandleTypeDef UartInit(int type)
 {
-	UART_HandleTypeDef* uartHandle;
+	UART_HandleTypeDef * uartHandle;
 
 	if (type == 4)
 	{
@@ -19,11 +19,11 @@ UART_HandleTypeDef * UartInit(int type)
 		uartHandle = &huart1;
 		MX_USART1_UART_Init();
 	}
-	return (uartHandle);
+	return (*uartHandle);
 }
 
 
-void UartSendString(unsigned char * phrase, UART_HandleTypeDef* huart)
+void UartSendString(unsigned char * phrase, UART_HandleTypeDef * huart)
 {
 	int qty = 0;
 

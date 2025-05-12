@@ -25,7 +25,7 @@ void print_help (void)
 }
 void cmdHelp (void)
 {
-    print ("/rmicrorl v");
+    print ("microrl v");
     print (MICRORL_LIB_VER);
     print("\n\r");
     print_help ();        // print help
@@ -39,16 +39,16 @@ void cmdClear(void)
 void cmdLedon(void)
 {
     HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
-    print("\rled turning on \n\r");
+    print("led turning on \n\r");
 }
 void cmdLedoff(void)
 {
     HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
-    print("\rled turning off \n\r");
+    print("led turning off \n\r");
 }
 void cmdSetBrightness(char * val)
 {
-    static char buffer[5] = {0};
+    static char buffer[20] = {0};
     static uint32_t pulseWidth = 0;
     static uint32_t brightness = 0;
     static char * cptr = NULL;
@@ -63,50 +63,53 @@ void cmdSetBrightness(char * val)
     }
     else if (len > 4)
     {
-        print ("\rvalue too long!\n\r");
+        print ("value too long!\n\r");
     }
     else
     {
-        print ("\rEnter the value \n\r");
+        print ("Enter the value \n\r");
     }
-    sprintf(buffer, "\rbrightness is %lu", brightness);
+    sprintf(buffer, "brightness is %lu", brightness);
     print(buffer);
     print("% \n\r");
 }
+
 void cmdADCGet(char * val)
 {
     static uint32_t adcVal = 0;
     static char buffer[30] = {0};
-    static uint8_t len;
-    static char gChar = 0;
-    len = strlen(val);
+    //static uint8_t len;
+    char gChar = 0;
+    //len = strlen(val);
 
     if (strcmp(val, _ARG_ADCCYCLIC) == 0)
     {
         while(gChar != KEY_ETX)
         {
             adcVal = pollADC();
-            sprintf(buffer, "\rADC value: %lu \r\n", adcVal);
+            sprintf(buffer, "ADC value: %lu \r", adcVal);
             print(buffer);
             gChar = get_char();
+            if (gChar == KEY_ETX) print("\n\r");
+
         }
     }
     else if (strcmp(val, "-1") == 0)
     {
         adcVal = pollADC();
-        sprintf(buffer, "\rADC value: %lu \r\n", adcVal);
+        sprintf(buffer, "ADC value: %lu \r\n", adcVal);
         print(buffer);
     }
     else
     {
-        print ("\rvalue is incorrect\n\r");
+        print ("value is incorrect\n\r");
     }
 }
 void cmdADCGetStatus(void)
 {
     static uint32_t adcVal = 0;
     static char buffer[30] = {0};
-    sprintf(buffer, "\rStatus %lu \r\n", adcVal);
+    sprintf(buffer, "Status %lu \r\n", adcVal);
     adcVal = HAL_ADC_GetState(&hadc1);
     print(buffer);
 }
