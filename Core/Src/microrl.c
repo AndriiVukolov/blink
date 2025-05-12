@@ -595,7 +595,6 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			break;
 #else
 			case KEY_CR:
-			    //new_line_handler(pThis);
 			break;
 			case KEY_LF:
 				new_line_handler(pThis);

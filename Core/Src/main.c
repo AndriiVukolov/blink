@@ -351,6 +351,7 @@ unsigned char get_char (void)
     {
         Error_Handler();
     }
+    if (symb == 13) print ("\n");
     return (symb);
 }
 void sigint (void)
