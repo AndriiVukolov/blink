@@ -39,7 +39,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "stm32u5xx_hal.h"
+#include "stm32u5xx_hal_uart.h"
 #include "cli_commands.h"
+#include "lux.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,6 +71,8 @@
 //TIM_HandleTypeDef htim3;
 //static TIM_OC_InitTypeDef sConfigOC;
 UART_HandleTypeDef huart;
+
+
 //static unsigned int timer1ms = 0;
 //static GPIO_PinState flagButtonState;
 //static int32_t pulseWidth = 0;
@@ -133,6 +137,8 @@ int main(void)
   MX_OCTOSPI1_Init();
   MX_OCTOSPI2_Init();
   MX_SPI2_Init();
+  MX_UART4_Init();
+  MX_USART1_UART_Init();
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM3_Init();
@@ -148,9 +154,8 @@ int main(void)
   HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
   TIM3_PeriodSet(80000);
   HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_1);
-
-  //HAL_ADCEx_Calibration_Start(&hadc1,ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
   HAL_ADC_Start(&hadc1);
+  luxInit(&lux1);
 
   /* USER CODE END 2 */
 
@@ -312,6 +317,12 @@ int execute (int argc, const char * const * argv)
         else if (strcmp(argv[i], _CMD_ADCSTATUS) == 0)
         {
             cmdADCGetStatus();
+        }
+        else if (strcmp(argv[i], _CMD_OPTREAD) == 0)
+        {
+            if ((++i) < argc) cmdOptRead(argv[i]);
+            else cmdOptRead("0");
+
         }
         else
         {

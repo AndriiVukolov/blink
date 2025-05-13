@@ -12,6 +12,7 @@
 #include "usart.h"
 #include "adc.h"
 #include "cli_commands.h"
+#include "lux.h"
 
 
 void print_help (void)
@@ -78,11 +79,9 @@ void cmdADCGet(char * val)
 {
     static uint32_t adcVal = 0;
     static char buffer[30] = {0};
-    //static uint8_t len;
     char gChar = 0;
-    //len = strlen(val);
 
-    if (strcmp(val, _ARG_ADCCYCLIC) == 0)
+    if (strcmp(val, _ARG_CYCLIC) == 0)
     {
         while(gChar != KEY_ETX)
         {
@@ -109,7 +108,37 @@ void cmdADCGetStatus(void)
 {
     static uint32_t adcVal = 0;
     static char buffer[30] = {0};
-    sprintf(buffer, "Status %lu \r\n", adcVal);
+
     adcVal = HAL_ADC_GetState(&hadc1);
+    sprintf(buffer, "Status %lu \r\n", adcVal);
     print(buffer);
+}
+void cmdOptRead(char * val)
+{
+    char buffer[40] = {0};
+    char gChar = 0;
+
+    if (strcmp(val, _ARG_CYCLIC) == 0)
+    {
+        while(gChar != KEY_ETX)
+        {
+            readLux(&lux1);
+            sprintf(buffer, "Illumination level: %f\r", lux1.VAL);
+            print(buffer);
+            memset(buffer, 0, 40);
+            gChar = get_char();
+            if (gChar == KEY_ETX) print("\n\r");
+
+        }
+    }
+    else if (strcmp(val, "0") == 0)
+    {
+        readLux(&lux1);
+        sprintf(buffer, "Illumination level: %f \r\n", lux1.VAL);
+        print(buffer);
+    }
+    else
+    {
+        print ("value is incorrect\n\r");
+    }
 }
