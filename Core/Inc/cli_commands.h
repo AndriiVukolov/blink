@@ -8,6 +8,7 @@
 #ifndef INC_CLI_COMMANDS_H_
 #define INC_CLI_COMMANDS_H_
 
+#include "lux.h"
 // definition commands word
 #define _CMD_HELP   "help"
 #define _CMD_CLEAR  "clear"
@@ -16,9 +17,10 @@
 #define _CMD_SET_BRIGHTNESS "led_set"
 #define _CMD_ADCGET "adc_get"
 #define _CMD_ADCSTATUS "adc_status"
+#define _CMD_OPTREAD "opt_read"
 
 //keys
-#define _ARG_ADCCYCLIC "-c"
+#define _ARG_CYCLIC "-c"
 
 //available  commands
 //char * keyword [] = {_CMD_HELP, _CMD_CLEAR, _CMD_LED_ON, _CMD_LED_OFF, _CMD_SET_BRIGHTNESS};
@@ -31,6 +33,7 @@ void cmdADCGet();
 void print_help (void);
 void cmdADCGet(char * val);
 void cmdADCGetStatus(void);
+void cmdOptRead(lux_t * lux, char * val);
 
 
 #endif /* INC_CLI_COMMANDS_H_ */

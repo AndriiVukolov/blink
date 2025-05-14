@@ -36,8 +36,6 @@ extern UART_HandleTypeDef huart4;
 
 extern UART_HandleTypeDef huart1;
 
-extern UART_HandleTypeDef huart;
-
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
