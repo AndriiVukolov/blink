@@ -113,7 +113,7 @@ void cmdADCGetStatus(void)
     sprintf(buffer, "Status %lu \r\n", adcVal);
     print(buffer);
 }
-void cmdOptRead(char * val)
+void cmdOptRead(lux_t * lux, char * val)
 {
     char buffer[40] = {0};
     char gChar = 0;
@@ -122,19 +122,19 @@ void cmdOptRead(char * val)
     {
         while(gChar != KEY_ETX)
         {
-            readLux(&lux1);
-            sprintf(buffer, "Illumination level: %f\r", lux1.VAL);
+            readLux(lux);
+            readConfig(lux);
+            sprintf(buffer, "Illumination level: %f \r", lux->VAL);
             print(buffer);
             memset(buffer, 0, 40);
             gChar = get_char();
             if (gChar == KEY_ETX) print("\n\r");
-
         }
     }
     else if (strcmp(val, "0") == 0)
     {
-        readLux(&lux1);
-        sprintf(buffer, "Illumination level: %f \r\n", lux1.VAL);
+        readLux(lux);
+        sprintf(buffer, "Illumination level: %f \r\n", lux->VAL);
         print(buffer);
     }
     else

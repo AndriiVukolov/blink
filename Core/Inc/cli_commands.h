@@ -8,6 +8,7 @@
 #ifndef INC_CLI_COMMANDS_H_
 #define INC_CLI_COMMANDS_H_
 
+#include "lux.h"
 // definition commands word
 #define _CMD_HELP   "help"
 #define _CMD_CLEAR  "clear"
@@ -32,7 +33,7 @@ void cmdADCGet();
 void print_help (void);
 void cmdADCGet(char * val);
 void cmdADCGetStatus(void);
-void cmdOptRead(char * val);
+void cmdOptRead(lux_t * lux, char * val);
 
 
 #endif /* INC_CLI_COMMANDS_H_ */

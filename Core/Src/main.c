@@ -55,8 +55,6 @@
 #define PULSE_STEP  21000L
 #define PULSE_MAX  160000L
 #define PULSE_MIN       0L
-
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -67,31 +65,28 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-//TIM_HandleTypeDef htim2;
-//TIM_HandleTypeDef htim3;
-//static TIM_OC_InitTypeDef sConfigOC;
-UART_HandleTypeDef huart;
-
-
-//static unsigned int timer1ms = 0;
-//static GPIO_PinState flagButtonState;
-//static int32_t pulseWidth = 0;
-//static int direction = 1;
-//static uint32_t brightness;
-
-static microrl_t mcon;
-
+UART_HandleTypeDef huart;//uart interface
+static microrl_t mcon; //command line interface
+lux_t lux1 = {  .ADD = ADDRESS,
+                .RN = RANGE,
+                .CT = CONVERSION_TIME,
+                .M = CONVERSION_MODE,
+                .OVF = 0,
+                .CRF = 0,
+                .FH = 0,
+                .FL = 0,
+                .L = LATCH,
+                .POL = POLARITY,
+                .ME = MASK_EXPONENT,
+                .FC = FAULT_COUNT};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
-//void print (const char * str);
 int execute (int argc, const char * const * argv);
-//uint8_t get_char (void);
 void sigint (void);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -320,8 +315,8 @@ int execute (int argc, const char * const * argv)
         }
         else if (strcmp(argv[i], _CMD_OPTREAD) == 0)
         {
-            if ((++i) < argc) cmdOptRead(argv[i]);
-            else cmdOptRead("0");
+            if ((++i) < argc) cmdOptRead(&lux1, argv[i]);
+            else cmdOptRead(&lux1, "0");
 
         }
         else
