@@ -13,7 +13,7 @@
 
 static void writeReg(lux_t * lux, uint8_t reg, uint16_t val)
 {
-    static uint8_t buf[3] = {0};
+    uint8_t buf[3] = {0};
 
     buf[0] = reg;
     buf[1] = ((val & 0xFF00) >> 8);
@@ -23,8 +23,8 @@ static void writeReg(lux_t * lux, uint8_t reg, uint16_t val)
 }
 static uint16_t readReg(lux_t * lux, uint8_t reg)
 {
-    static uint8_t buf[2] = {0};
-    static uint16_t result;
+    uint8_t buf[2] = {0};
+    uint16_t result;
 
     if (HAL_I2C_Master_Transmit(&hi2c1, (lux->ADD << 1), &reg, 1, LUX_DELAY) != HAL_OK) print("Transmission error (readReg) ");
     if (HAL_I2C_Master_Receive(&hi2c1, (lux->ADD << 1), buf, 2, LUX_DELAY) != HAL_OK) print("Reception error (readReg) ");

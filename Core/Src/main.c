@@ -67,7 +67,7 @@
 /* USER CODE BEGIN PV */
 UART_HandleTypeDef huart;//uart interface
 static microrl_t mcon; //command line interface
-lux_t lux1 = {  .ADD = ADDRESS,
+static lux_t lux1 = {  .ADD = ADDRESS,
                 .RN = RANGE,
                 .CT = CONVERSION_TIME,
                 .M = CONVERSION_MODE,
