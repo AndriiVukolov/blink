@@ -57,3 +57,5 @@ Release/
 Drivers/STM32U5xx_HAL_Driver/
 .settings/
 **/Backup/
+Core/Inc/stm32u5xx_it.h
+Core/Src/stm32u5xx_it.c
