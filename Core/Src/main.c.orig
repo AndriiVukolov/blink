@@ -39,7 +39,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "stm32u5xx_hal.h"
+#include "stm32u5xx_hal_uart.h"
 #include "cli_commands.h"
+#include "lux.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,8 +55,6 @@
 #define PULSE_STEP  21000L
 #define PULSE_MAX  160000L
 #define PULSE_MIN       0L
-
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -65,37 +65,94 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-//TIM_HandleTypeDef htim2;
-//TIM_HandleTypeDef htim3;
-//static TIM_OC_InitTypeDef sConfigOC;
 <<<<<<< HEAD
-UART_HandleTypeDef huart;
+static UART_HandleTypeDef huart;//uart interface
+static SPI_HandleTypeDef hspi;//spi interface
+
+static microrl_t mcon; //command line interface
+static lux_t lux1 = {
+        .ADD = ADDRESS,
+        .RN = RANGE,
+        .CT = CONVERSION_TIME,
+        .M = CONVERSION_MODE,
+        .OVF = 0,
+        .CRF = 0,
+        .FH = 0,
+        .FL = 0,
+        .L = LATCH,
+        .POL = POLARITY,
+        .ME = MASK_EXPONENT,
+        .FC = FAULT_COUNT
+};
+
+static bmp_t bmp1 = {
+       .hspi        = &hspi,
+       .ChipName    = {"BMP390"},
+       .CHIP_ID     = 0,
+       .REV_ID      = 0,
+       .ERR_REG     = 0,
+       .DRDY_TEMP   = 0,
+       .DRDY_PRESS  = 0,
+       .CRDY        = 0,
+       .PDATA       = 0,
+       .TDATA       = 0,
+       .SENSORTIME  = 0,
+       .EVENT       = 0,
+       .INT_STATUS  = 0,
+       .FIFO_LENGTH = 0,
+       .FIFO_DATA   = 0,
+       .FIFO_WTM    = DEF_WTM,
+       .FIFO_TEMP_EN    = DEF_FIFO_TEMP_EN,
+       .FIFO_PRESS_EN   = DEF_FIFO_PRESS_EN,
+       .FIFO_TIME_EN    = DEF_FIFO_TIME_EN,
+       .FIFO_STOP_OF    = DEF_FIFO_STOP_OF,
+       .FIFO_MODE   = DEF_FIFO_MODE,
+       .DATA_SEL    = DEF_DATA_SELECT,
+       .FIFO_SBSMP  = DEF_FIFO_SUBSAMPLING,
+       .DRDY_EN     = DEF_DRDY_EN,
+       .INT_DS      = DEF_INT_DS,
+       .FULL_EN     = DEF_FULL_EN,
+       .FWTM_EN     = DEF_FWTM_EN,
+       .INT_LATCH   = DEF_INT_LATCH,
+       .INT_LVL     = DEF_INT_LVL,
+       .INT_OD      = DEF_INT_OD,
+       .I2C_WDT_S   = DEF_I2C_WDT_S,
+       .I2C_WDT_EN  = DEF_I2C_WDT_EN,
+       .SPI3_M      = DEF_SPI3_M,
+       .PW_MODE     = DEF_PWR_MODE,
+       .PW_TEMP     = DEF_PW_TEMP,
+       .PW_PRESS    = DEF_PW_PRESS,
+       .OSRT        = DEF_OSRT,
+       .OSRP        = DEF_OSRP,
+       .ODR         = DEF_ODR,
+       .CONFIG      = DEF_CONFIG,
+       .CMD         = 0
+};
+
 =======
-UART_HandleTypeDef * huart;
+UART_HandleTypeDef huart;//uart interface
+static microrl_t mcon; //command line interface
+static lux_t lux1 = {  .ADD = ADDRESS,
+                .RN = RANGE,
+                .CT = CONVERSION_TIME,
+                .M = CONVERSION_MODE,
+                .OVF = 0,
+                .CRF = 0,
+                .FH = 0,
+                .FL = 0,
+                .L = LATCH,
+                .POL = POLARITY,
+                .ME = MASK_EXPONENT,
+                .FC = FAULT_COUNT};
 >>>>>>> main
-//static unsigned int timer1ms = 0;
-//static GPIO_PinState flagButtonState;
-//static int32_t pulseWidth = 0;
-//static int direction = 1;
-//static uint32_t brightness;
-
-static microrl_t mcon;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
-//void print (const char * str);
 int execute (int argc, const char * const * argv);
-<<<<<<< HEAD
-=======
-//void print_help (void);
->>>>>>> main
-//uint8_t get_char (void);
 void sigint (void);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -140,14 +197,20 @@ int main(void)
   MX_ICACHE_Init();
   MX_OCTOSPI1_Init();
   MX_OCTOSPI2_Init();
+<<<<<<< HEAD
+=======
   MX_SPI2_Init();
-
+>>>>>>> main
+  MX_UART4_Init();
+  MX_USART1_UART_Init();
   MX_UCPD1_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM3_Init();
   MX_ADC1_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   huart = UartInit(1);
+  hspi = SpiInit(1);
 //========================================================================Microrl=============================
   microrl_init(&mcon, print);
   microrl_set_execute_callback (&mcon, execute);
@@ -155,19 +218,24 @@ int main(void)
 //==========================================================================================================
   HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(CHIP_SELECT_GPIO_Port, CHIP_SELECT_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(SWITCH_Port, SWITCH_Pin, GPIO_PIN_SET);
   TIM3_PeriodSet(80000);
   HAL_TIM_PWM_Start_IT(&htim3, TIM_CHANNEL_1);
-
-  //HAL_ADCEx_Calibration_Start(&hadc1,ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
   HAL_ADC_Start(&hadc1);
+<<<<<<< HEAD
+  //luxInit(&lux1);
+  bmpInit(&bmp1);
+=======
+  luxInit(&lux1);
 
+>>>>>>> main
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
       uint8_t cChar;
       cChar = get_char();
       //UartSendString(&cChar, huart);
@@ -175,7 +243,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
   }
   /* USER CODE END 3 */
 }
@@ -258,28 +325,17 @@ static void SystemPower_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+//==================================================================Interrupts
 //Timer interrupt every 1 ms
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
-//    if(htim->Instance == TIM2)
-//    {
-//        if (timer1ms < DEBOUNCE_DELAY) timer1ms++;
-//    }
-//    if(htim->Instance == TIM3)
-//    {
-//        HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
-//    }
 }
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM3)
         {
-<<<<<<< HEAD
             HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
-=======
-            HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_RESET);
->>>>>>> main
         }
 }
 //
@@ -287,31 +343,18 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim->Instance == TIM3)
     {
-<<<<<<< HEAD
         HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
-=======
-        HAL_GPIO_WritePin(ILED_Port, ILED_Pin, GPIO_PIN_SET);
->>>>>>> main
     }
 }
-//Button interrupt
-//void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
-//{
-//    if(GPIO_Pin == USER_Button_Pin)
-//        {
-//            HAL_NVIC_DisableIRQ(USER_Button_EXTI_IRQn);
-//            HAL_TIM_Base_Start_IT(&htim2);
-//        }
-//}
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+    if (HAL_GPIO_ReadPin(BMP_INT_GPIO_Port, BMP_INT_Pin)) readPressure(&bmp1);
+}
 
 //==========================================================================================================
 void print (const char * str)
 {
-<<<<<<< HEAD
-    if (HAL_UART_Transmit(&huart, str, strlen(str), 10) != HAL_OK)
-=======
-    if (HAL_UART_Transmit(huart, str, strlen(str), 100) != HAL_OK)
->>>>>>> main
+    if (HAL_UART_Transmit(&huart, (const uint8_t*)str, strlen(str), 10) != HAL_OK)
     {
         Error_Handler();
     }
@@ -319,16 +362,10 @@ void print (const char * str)
 int execute (int argc, const char * const * argv)
 {
     int i = 0;
-<<<<<<< HEAD
     print ("\n");
     // just iterate through argv word and compare it with your commands
     while (i < argc)
     {
-=======
-
-    // just iterate through argv word and compare it with your commands
-    while (i < argc) {
->>>>>>> main
         if (strcmp (argv[i], _CMD_HELP) == 0)
         {
             cmdHelp();
@@ -347,20 +384,74 @@ int execute (int argc, const char * const * argv)
         }
         else if (strcmp (argv[i], _CMD_SET_BRIGHTNESS) == 0)
         {
-<<<<<<< HEAD
             if ((++i) < argc) cmdSetBrightness(argv[i]);
             else cmdSetBrightness("0");
         }
-        else if (strcmp (argv[i], _CMD_ADCGET) == 0)
+        else if (strcmp (argv[i], _CMD_ADC_GET) == 0)
         {
             if ((++i) < argc) cmdADCGet(argv[i]);
             else cmdADCGet("-1");
         }
-        else if (strcmp(argv[i], _CMD_ADCSTATUS) == 0)
+        else if (strcmp(argv[i], _CMD_ADC_STATUS) == 0)
         {
             cmdADCGetStatus();
+        }
+<<<<<<< HEAD
+        else if (strcmp(argv[i], _CMD_OPT_READ) == 0)
+        {
+            if ((++i) < argc) cmdOptRead(&lux1, argv[i]);
+            else cmdOptRead(&lux1, "0");
+        }
+        else if (strcmp(argv[i], _CMD_BMP_READ) == 0)
+        {
+            if ((++i) < argc) cmdBmpReadPress(&bmp1, argv[i]);
+            else cmdBmpReadPress(&bmp1, "0");
+        }
+        else if (strcmp(argv[i], _CMD_CHIP_ID) == 0)
+        {
+            cmdChipIdRead(&bmp1);
+        }
+        else if (strcmp(argv[i], _CMD_BMP_READ_PRESS_INT) == 0)
+        {
+            cmdBmpReadPressInt(&bmp1);
+        }
+        else if (strcmp(argv[i], _CMD_BMP_RESET) == 0)
+        {
+            cmdReset(&bmp1);
+        }
+        else if (strcmp(argv[i], _CMD_BMP_READ_ALL) == 0)
+        {
+            cmdReadAll(&bmp1);
+        }
+        else if (strcmp(argv[i], _CMD_BMP_READ_CONFIG) == 0)
+        {
+            cmdReadConfig(&bmp1);
+        }
+        else if (strcmp(argv[i], _CMD_BMP_READ_INT_CTRL) == 0)
+        {
+            cmdReadIntCtrl(&bmp1);
+        }
+        else if (strcmp(argv[i], _CMD_BMP_SET_CONFIG) == 0)
+        {
+            cmdSetConfig(&bmp1);
+        }
+        else if (strcmp (argv[i], _CMD_BMP_WRITE_BYTE) == 0)
+        {
+            cmdWriteByte(&bmp1, argv[++i], argv[++i]);
+        }
+        else if (strcmp (argv[i], _CMD_BMP_READ_BYTE) == 0)
+        {
+            cmdReadByte(&bmp1, argv[++i]);
+        }
+        else if (strcmp (argv[i], _CMD_BMP_READ_CALIBRATION) == 0)
+        {
+            cmdReadCalibration(&bmp1);
 =======
-            cmdSetBrightness(argv[++i]);
+        else if (strcmp(argv[i], _CMD_OPTREAD) == 0)
+        {
+            if ((++i) < argc) cmdOptRead(&lux1, argv[i]);
+            else cmdOptRead(&lux1, "0");
+
 >>>>>>> main
         }
         else
@@ -371,31 +462,12 @@ int execute (int argc, const char * const * argv)
         }
         i++;
     }
-<<<<<<< HEAD
-
     return 0;
 }
-
 unsigned char get_char (void)
 {
     uint8_t symb;
     if (HAL_UART_Receive(&huart, &symb, 1, 10) != HAL_OK)
-=======
-    return 0;
-}
-//void print_help (void)
-//{
-//    print ("Use TAB key for completion\n\rCommand:\n\r");
-//    print ("\tclear               - clear screen\n\r");
-//    print ("\tledon               - turns LED on\n\r");
-//    print ("\tledoff              - turns LED off\n\r");
-//    print ("\tled_set <brightness> - sets LED brightness 0..100\n\r");
-//}
-unsigned char get_char (void)
-{
-    uint8_t symb;
-    if (HAL_UART_Receive(huart, &symb, 1, 0) != HAL_OK)
->>>>>>> main
     {
         Error_Handler();
     }
@@ -405,6 +477,7 @@ void sigint (void)
 {
     print ("^C catched!\n\r");
 }
+
 
 //==========================================================================================================
 /* USER CODE END 4 */
