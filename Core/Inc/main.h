@@ -101,8 +101,6 @@ void Error_Handler(void);
 #define T_SWO_GPIO_Port GPIOB
 #define OCTOSPI_R_IO7_Pin GPIO_PIN_7
 #define OCTOSPI_R_IO7_GPIO_Port GPIOD
-#define WRLS_SPI2_MISO_Pin GPIO_PIN_3
-#define WRLS_SPI2_MISO_GPIO_Port GPIOD
 #define OCTOSPI_F_IO6_Pin GPIO_PIN_11
 #define OCTOSPI_F_IO6_GPIO_Port GPIOH
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15
@@ -158,6 +156,9 @@ void Error_Handler(void);
 #define Mems_VL53_xshut_GPIO_Port GPIOH
 #define AN_0_Pin GPIO_PIN_0
 #define AN_0_GPIO_Port GPIOC
+#define BMP_INT_Pin GPIO_PIN_1
+#define BMP_INT_GPIO_Port GPIOC
+#define BMP_INT_EXTI_IRQn EXTI1_IRQn
 #define MIC_CCK0_Pin GPIO_PIN_9
 #define MIC_CCK0_GPIO_Port GPIOE
 #define Mems_VLX_GPIO_Pin GPIO_PIN_5
@@ -170,6 +171,8 @@ void Error_Handler(void);
 #define OCTOSPI_F_DQS_GPIO_Port GPIOF
 #define USB_UCPD_FLT_Pin GPIO_PIN_8
 #define USB_UCPD_FLT_GPIO_Port GPIOE
+#define SPI1_MISO_Pin GPIO_PIN_14
+#define SPI1_MISO_GPIO_Port GPIOE
 #define OCTOSPI_R_CLK_P_Pin GPIO_PIN_10
 #define OCTOSPI_R_CLK_P_GPIO_Port GPIOB
 #define Mems_INT_IIS2MDC_Pin GPIO_PIN_10
@@ -180,6 +183,8 @@ void Error_Handler(void);
 #define Mems_INT_LPS22HH_GPIO_Port GPIOG
 #define USB_VBUS_SENSE_Pin GPIO_PIN_14
 #define USB_VBUS_SENSE_GPIO_Port GPIOF
+#define SPI1_SCK_Pin GPIO_PIN_13
+#define SPI1_SCK_GPIO_Port GPIOE
 #define OCTOSPI_R_NCS_Pin GPIO_PIN_11
 #define OCTOSPI_R_NCS_GPIO_Port GPIOB
 #define WRLS_SPI2_NSS_Pin GPIO_PIN_12
@@ -188,15 +193,24 @@ void Error_Handler(void);
 #define USB_UCPD_CC2_GPIO_Port GPIOB
 #define Mems_STSAFE_RESET_Pin GPIO_PIN_11
 #define Mems_STSAFE_RESET_GPIO_Port GPIOF
+#define CHIP_SELECT_Pin GPIO_PIN_13
+#define CHIP_SELECT_GPIO_Port GPIOF
 #define Mems_ISM330DLC_INT1_Pin GPIO_PIN_11
 #define Mems_ISM330DLC_INT1_GPIO_Port GPIOE
+#define SPI1_MISOE15_Pin GPIO_PIN_15
+#define SPI1_MISOE15_GPIO_Port GPIOE
 #define MIC_SDIN0_Pin GPIO_PIN_1
 #define MIC_SDIN0_GPIO_Port GPIOB
 #define WRLS_WKUP_W_Pin GPIO_PIN_15
 #define WRLS_WKUP_W_GPIO_Port GPIOF
+#define BMP_CS_Pin GPIO_PIN_12
+#define BMP_CS_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 typedef enum {ECHO_OFF, ECHO_ON}echoState_t;
+#define SWITCH_Pin GPIO_PIN_13
+#define SWITCH_Port GPIOH
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
