@@ -7,7 +7,7 @@
 
 UART_HandleTypeDef UartInit(int type)
 {
-	UART_HandleTypeDef * uartHandle;
+	UART_HandleTypeDef * uartHandle = NULL;
 
 	if (type == 4)
 	{
@@ -27,7 +27,7 @@ void UartSendString(unsigned char * phrase, UART_HandleTypeDef * huart)
 {
 	int qty = 0;
 
-	qty = strlen(phrase);
+	qty = strlen((const char*)phrase);
 	if (HAL_UART_Transmit(huart, phrase, qty, 1000) != HAL_OK)
 	  {
 			Error_Handler();

@@ -10,6 +10,7 @@
 #include <string.h>
 #include "lux.h"
 #include <math.h>
+#include "microrl.h"
 
 static void writeReg(lux_t * lux, uint8_t reg, uint16_t val)
 {

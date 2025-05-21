@@ -534,8 +534,8 @@ static void microrl_get_complite (microrl_t * pThis)
 
 //*****************************************************************************
 void new_line_handler(microrl_t * pThis){
-	char const * tkn_arr [_COMMAND_TOKEN_NMB];
-	int status;
+	char const * tkn_arr [_COMMAND_TOKEN_NMB];//tockens array
+	int status; //qty of tockens
 
 	terminal_newline (pThis);
 #ifdef _USE_HISTORY
